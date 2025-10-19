@@ -20,10 +20,17 @@ services:
     image: prom/prometheus
     ports:
       - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
   grafana:
     image: grafana/grafana
     ports:
       - "3000:3000"
+  service1:
+    build: ./service1
+    ports:
+      - "8001:8001"
+
 
 volumes:
   pgdata:

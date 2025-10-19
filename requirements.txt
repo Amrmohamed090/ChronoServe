@@ -5,3 +5,4 @@ asyncpg
 sqlalchemy
 psycopg[binary]
 prometheus-client
+prometheus_fastapi_instrumentator

@@ -1,18 +1,14 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from app.proxy import proxy_request
-from app.db import Base, engine
-from prometheus_client import Counter, Histogram, generate_latest
-from fastapi.responses import PlainTextResponse
+from prometheus_fastapi_instrumentator import Instrumentator
 
 app = FastAPI()
 
-@app.on_event("startup")
-async def startup():
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+# Initialize metrics before startup
+Instrumentator().instrument(app).expose(app)
 
-@app.middleware("http")
-async def proxy_middleware(request: Request, call_next):
-    if request.url.path == "/metrics":
-        return PlainTextResponse(generate_latest())
-    return await proxy_request(request)
+@app.get("/")
+async def root():
+    return {"message": "ChronoServe Gateway running"}
+
+app.add_route("/{path:path}", proxy_request, methods=["GET", "POST", "PUT", "DELETE"])
